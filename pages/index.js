@@ -3,18 +3,18 @@ import { useState } from "react";
 import styles from "./index.module.css";
 
 export default function Home() {
-  const [animalInput, setAnimalInput] = useState("");
+  const [promptInput, setPromptInput] = useState("");
   const [result, setResult] = useState();
-
+  const [chatCompletion, setChatCompletion] = useState('')
   async function onSubmit(event) {
     event.preventDefault();
     try {
-      const response = await fetch("/api/generate", {
+      const response = await fetch("/api/generateGPT4", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ animal: animalInput }),
+        body: JSON.stringify({ prompt: promptInput }),
       });
 
       const data = await response.json();
@@ -23,7 +23,8 @@ export default function Home() {
       }
 
       setResult(data.result);
-      setAnimalInput("");
+      setChatCompletion(data.completion)      
+      setPromptInput("");
     } catch(error) {
       // Consider implementing your own error handling logic here
       console.error(error);
@@ -35,24 +36,35 @@ export default function Home() {
     <div>
       <Head>
         <title>OpenAI Quickstart</title>
-        <link rel="icon" href="/dog.png" />
+        <link rel="icon" href="/the-seo-hustler-favicon-32x32.png" />
       </Head>
 
       <main className={styles.main}>
-        <img src="/dog.png" className={styles.icon} />
-        <h3>Name my pet</h3>
+        <img src="/the-seo-hustler-favicon-32x32.png" className={styles.icon} />
+        <h3>GPT-4</h3>
         <form onSubmit={onSubmit}>
           <input
             type="text"
-            name="animal"
-            placeholder="Enter an animal"
-            value={animalInput}
-            onChange={(e) => setAnimalInput(e.target.value)}
+            name="prompt"
+            placeholder="Enter an prompt"
+            value={promptInput}
+            onChange={(e) => setPromptInput(e.target.value)}
           />
-          <input type="submit" value="Generate names" />
+          <input type="submit" value="Generate" />
         </form>
         <div className={styles.result}>{result}</div>
+        {console.log("json strigfied", addNewlineCharacters(JSON.stringify(chatCompletion, null, 4)))}
+        <div className={styles.completion} dangerouslySetInnerHTML={{ __html: addNewlineCharacters(JSON.stringify(chatCompletion, null, 4))}}></div>
       </main>
     </div>
   );
+}
+function addNewlineCharacters(str) {
+  const charsToAddNewline = ['[', ']', '{', '}'];
+
+  for (const char of charsToAddNewline) {
+    str = str.split(char).join(`${char}<br/>`);
+  }
+  console.log("string to return," , str)
+  return str;
 }
